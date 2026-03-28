@@ -41,25 +41,21 @@ const DEFAULT_DATA = {
   current_day: 0,
   metrics: {
     healing_score: 0,
-    status: "Improving ↑",
+    status: "No Data",
     redness: 0,
     wound_area: 0,
     infection_risk_pct: 0,
-    risk_level: "Medium",
-    contributing_factors: ["Wound area growing"],
+    risk_level: "None",
+    contributing_factors: [],
   },
-  chartData: [
-    { day: 1, score: 50, redness: 0.8, area: 1000 },
-    { day: 2, score: 62, redness: 0.6, area: 1050 },
-    { day: 3, score: 72.5, redness: 0.45, area: 1200 },
-  ],
+  chartData: [{ day: 0, score: 0, redness: 0, area: 0 }],
   ai_report: {
     doctor_summary:
-      "Patient_001's wound healing score has improved to 72.5/100 on day 3, with a reducing redness level of 0.45 and an infection risk at medium (35%). However, there is a concern as the wound area is growing. Continue monitoring and consider adjusting treatment plan if necessary.",
+      "No analysis available. Please upload a wound image to begin.",
     patient_advice: [
-      "Maintain current wound care regimen",
-      "Monitor wound area closely",
-      "Consult with healthcare provider for potential treatment adjustments",
+      "Upload a wound scan to get started",
+      "Provide patient ID and monitoring day",
+      "Wait for AI analysis results",
     ],
   },
 };
@@ -304,38 +300,59 @@ const MetricsBanner = ({ metrics }) => {
   );
 };
 
-const VisualAnalysis = () => {
+const VisualAnalysis = ({
+  chartData,
+  metrics,
+  uploadedImageUrl,
+  predictedImageUrl,
+  currentDay,
+}) => {
+  const displayDay = currentDay || 1;
+  const predictedDay = displayDay + 1;
+
+  if (!uploadedImageUrl) {
+    return null;
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-slate-500" />
-            Healing Timeline
+            Healing Timeline - Day {displayDay}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4 overflow-x-auto pb-4 snap-x">
-            {[1, 2, 3].map((day, i) => (
-              <motion.div
-                key={day}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="shrink-0 w-32 snap-start"
-              >
-                <div className="aspect-square rounded-lg bg-slate-100 border-2 border-slate-200 overflow-hidden relative mb-2 flex items-center justify-center">
-                  <div
-                    className={`w-16 h-16 rounded-full opacity-50 blur-md transition-all ${day === 3 ? "bg-rose-300 scale-110" : "bg-emerald-200"}`}
-                  />
-                  <span className="absolute bottom-1 right-2 text-[10px] font-mono text-slate-400">
-                    IMG_{day}
-                  </span>
-                </div>
-                <div className="text-center text-sm font-medium">Day {day}</div>
-              </motion.div>
-            ))}
+            <motion.div
+              key={displayDay}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0 }}
+              className="shrink-0 w-40 snap-start"
+            >
+              <div className="aspect-square rounded-lg bg-slate-100 border-2 border-emerald-300 overflow-hidden relative mb-2">
+                <img
+                  src={uploadedImageUrl}
+                  alt={`Wound scan Day ${displayDay}`}
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute bottom-1 right-2 text-[10px] font-mono text-white bg-black/50 px-1 rounded">
+                  Day {displayDay}
+                </span>
+              </div>
+              <div className="text-center text-sm font-medium">
+                Day {displayDay}
+              </div>
+              <div className="text-center text-xs text-slate-500">
+                Current Upload
+              </div>
+            </motion.div>
           </div>
+          <p className="text-xs text-slate-500 mt-2">
+            Showing analysis for Day {displayDay} only
+          </p>
         </CardContent>
       </Card>
 
@@ -350,46 +367,68 @@ const VisualAnalysis = () => {
             Future Wound Simulation
           </CardTitle>
           <p className="text-sm text-slate-500">
-            Predictive modeling for Day 4+ based on current trajectory.
+            Predictive modeling for Day {predictedDay} based on current
+            trajectory.
           </p>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <div className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">
-                Current (Day 3)
+                Current (Day {displayDay})
               </div>
               <div className="aspect-video rounded-lg bg-slate-100 border border-slate-200 relative overflow-hidden flex items-center justify-center">
-                <div className="w-24 h-24 rounded-[40%] bg-rose-200/80 blur-sm mix-blend-multiply" />
-                <div className="absolute inset-0 bg-grid-slate-200/[0.04] bg-size-[16px_16px]" />
+                <img
+                  src={uploadedImageUrl}
+                  alt={`Current Day ${displayDay}`}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
 
             <div className="flex-1 relative">
               <div className="text-xs font-semibold text-emerald-600 mb-2 uppercase tracking-wider">
-                Predicted (Day 4)
+                Predicted (Day {predictedDay})
               </div>
               <div className="aspect-video rounded-lg bg-slate-900 border border-slate-800 relative overflow-hidden flex items-center justify-center">
-                <motion.div
-                  initial={{ scale: 1.1 }}
-                  animate={{ scale: 1 }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                  }}
-                  className="w-20 h-20 rounded-[50%] bg-emerald-400/40 blur-md mix-blend-screen"
-                />
-
-                <motion.div
-                  animate={{ top: ["-10%", "110%", "-10%"] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                  className="absolute left-0 right-0 h-1 bg-emerald-400/80 shadow-[0_0_15px_3px_rgba(52,211,153,0.5)] z-10"
-                />
-                <div className="absolute inset-0 bg-grid-white/[0.05] bg-size-[16px_16px]" />
-                <span className="absolute bottom-2 left-2 text-[10px] font-mono text-emerald-500/50 z-20">
-                  SIM_V2.1_RUNNING
-                </span>
+                {predictedImageUrl ? (
+                  <>
+                    <img
+                      src={predictedImageUrl}
+                      alt={`Predicted Day ${predictedDay}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <span className="absolute bottom-2 left-2 text-[10px] font-mono text-emerald-400 bg-black/60 px-1.5 py-0.5 rounded z-20">
+                      AI Predicted — Day {predictedDay}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <motion.div
+                      initial={{ scale: 1.1 }}
+                      animate={{ scale: 1 }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                      }}
+                      className={`w-20 h-20 rounded-[50%] ${metrics?.healing_score < 40 ? "bg-rose-400/40" : "bg-emerald-400/40"} blur-md mix-blend-screen`}
+                    />
+                    <motion.div
+                      animate={{ top: ["-10%", "110%", "-10%"] }}
+                      transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      className={`absolute left-0 right-0 h-1 ${metrics?.healing_score < 40 ? "bg-rose-400/80" : "bg-emerald-400/80"} shadow-[0_0_15px_3px_rgba(52,211,153,0.5)] z-10`}
+                    />
+                    <div className="absolute inset-0 bg-grid-white/[0.05] bg-size-[16px_16px]" />
+                    <span className="absolute bottom-2 left-2 text-[10px] font-mono text-emerald-500/50 z-20">
+                      Generating prediction...
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -830,12 +869,19 @@ export default function App() {
   const [patientData, setPatientData] = useState(DEFAULT_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const [hasData, setHasData] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
+  const [predictedImageUrl, setPredictedImageUrl] = useState(null);
 
   const handleUploadImage = async (file, patientId, day) => {
     setIsLoading(true);
     setUploadError(null);
 
     try {
+      // Create a local preview URL for the uploaded image
+      const imageUrl = URL.createObjectURL(file);
+      setUploadedImageUrl(imageUrl);
+
       const formData = new FormData();
       formData.append("image", file);
       formData.append("patient_id", patientId);
@@ -854,24 +900,39 @@ export default function App() {
       const result = await response.json();
 
       if (result.success) {
+        // Use uploaded image URL from backend
+        const backendImageUrl =
+          result.uploaded_image_url || URL.createObjectURL(file);
+        setUploadedImageUrl(backendImageUrl);
+
+        // Set predicted image URL from backend
+        if (result.predicted_image) {
+          setPredictedImageUrl(result.predicted_image);
+        }
+
+        // Use multi-point chart data from backend, or fall back to single point
+        const chartData =
+          result.chart_data && result.chart_data.length > 0
+            ? result.chart_data
+            : [
+                {
+                  day: result.day,
+                  score: result.metrics.healing_score,
+                  redness: result.metrics.redness,
+                  area: result.metrics.wound_area,
+                },
+              ];
+
         // Update patient data with results from backend
         setPatientData({
           patient_id: result.patient_id,
           current_day: result.day,
           metrics: result.metrics,
-          chartData: [
-            { day: 1, score: 50, redness: 0.8, area: 1000 },
-            { day: 2, score: 62, redness: 0.6, area: 1050 },
-            {
-              day: result.day,
-              score: result.metrics.healing_score,
-              redness: result.metrics.redness,
-              area: result.metrics.wound_area,
-            },
-          ],
+          chartData: chartData,
           ai_report: result.report,
         });
 
+        setHasData(true);
         setIsUploadModalOpen(false);
       } else {
         throw new Error("Invalid response format");
@@ -899,13 +960,51 @@ export default function App() {
             onUploadClick={() => setIsUploadModalOpen(true)}
             patientData={patientData}
           />
-          <MetricsBanner metrics={patientData.metrics} />
-          <VisualAnalysis />
-          <DynamicAnalytics
-            chartData={patientData.chartData}
-            metrics={patientData.metrics}
-          />
-          <AIReports aiReport={patientData.ai_report} />
+
+          {!hasData ? (
+            <div className="mt-12 flex flex-col items-center justify-center min-h-96">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="text-center"
+              >
+                <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                  <UploadCloud className="w-10 h-10 text-emerald-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                  Welcome to HealTrack AI
+                </h2>
+                <p className="text-slate-600 mb-6 max-w-md">
+                  Upload a wound image to begin analyzing healing progress with
+                  AI-powered diagnostics.
+                </p>
+                <Button
+                  onClick={() => setIsUploadModalOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload Your First Scan
+                </Button>
+              </motion.div>
+            </div>
+          ) : (
+            <>
+              <MetricsBanner metrics={patientData.metrics} />
+              <VisualAnalysis
+                chartData={patientData.chartData}
+                metrics={patientData.metrics}
+                uploadedImageUrl={uploadedImageUrl}
+                predictedImageUrl={predictedImageUrl}
+                currentDay={patientData.current_day}
+              />
+              <DynamicAnalytics
+                chartData={patientData.chartData}
+                metrics={patientData.metrics}
+              />
+              <AIReports aiReport={patientData.ai_report} />
+            </>
+          )}
         </motion.div>
       </div>
 

@@ -228,8 +228,10 @@ def export_all_charts(history, risk_pct, patient_id, day):
     """
 
     # Step 1: Make sure the output folder exists
-    # exist_ok=True means: don't crash if folder already exists
-    os.makedirs("outputs/charts", exist_ok=True)
+    # Use absolute path based on project root to work correctly when called from backend
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    charts_dir = os.path.join(base_dir, "outputs", "charts")
+    os.makedirs(charts_dir, exist_ok=True)
 
     # Step 2: Generate all 4 figures by calling the functions above
     print("  Building healing score chart...")
@@ -246,10 +248,10 @@ def export_all_charts(history, risk_pct, patient_id, day):
 
     # Step 3: Save each figure as a PNG image file
     # The file name includes patient_id and day so files don't overwrite each other
-    path1 = f"outputs/charts/{patient_id}_day{day}_healing_score.png"
-    path2 = f"outputs/charts/{patient_id}_day{day}_redness.png"
-    path3 = f"outputs/charts/{patient_id}_day{day}_wound_area.png"
-    path4 = f"outputs/charts/{patient_id}_day{day}_risk_gauge.png"
+    path1 = os.path.join(charts_dir, f"{patient_id}_day{day}_healing_score.png")
+    path2 = os.path.join(charts_dir, f"{patient_id}_day{day}_redness.png")
+    path3 = os.path.join(charts_dir, f"{patient_id}_day{day}_wound_area.png")
+    path4 = os.path.join(charts_dir, f"{patient_id}_day{day}_risk_gauge.png")
 
     print("  Saving chart PNGs...")
 

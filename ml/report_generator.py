@@ -38,13 +38,16 @@ def generate_report_local(prompt):
     url = "http://localhost:11434/api/generate"
 
     payload = {
-        "model": "mistral",   # you can change to llama3 if installed
+        "model": "mistral",
         "prompt": prompt,
-        "stream": False
+        "stream": False,
+        "options": {
+            "num_ctx": 4096
+        }
     }
 
     try:
-        response = requests.post(url, json=payload)
+        response = requests.post(url, json=payload, timeout=60)
         result = response.json()
         return result.get("response", "")
     except Exception as e:

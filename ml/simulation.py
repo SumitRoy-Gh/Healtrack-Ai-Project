@@ -91,8 +91,11 @@ def run_simulation(image_path, history, patient_id, day):
     predicted_img = simulate_future(img_rgb, mask, redness_delta, area_delta)
 
     # Step 4: Save the predicted image to disk
-    os.makedirs("outputs/predicted", exist_ok=True)
-    save_path = f"outputs/predicted/{patient_id}_day{day}_predicted.jpg"
+    import os
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    output_dir = os.path.join(base_dir, "outputs", "predicted")
+    os.makedirs(output_dir, exist_ok=True)
+    save_path = f"{output_dir}/{patient_id}_day{day}_predicted.jpg"
 
     save_predicted_image(predicted_img, save_path)
     print(f"  [Simulation] Saved: {save_path}")
