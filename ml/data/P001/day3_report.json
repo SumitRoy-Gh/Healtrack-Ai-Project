@@ -1,0 +1,8 @@
+{
+    "doctor_summary": "Patient P001 on day 3 shows an improving healing score (72.5/100), reduced redness level (0.45) but growing wound area (1200 pixels). Infection risk is medium (35%). This is a monitoring signal only \u2014 clinical judgment required.",
+    "patient_advice": [
+        "Maintain current wound care protocol, monitor wound size closely, consider adjusting dressing size if needed.",
+        "Consult with physician regarding possible increase in antibiotics dosage due to increasing infection risk.",
+        "Encourage patient to maintain good hygiene and avoid trauma to the wound area."
+    ]
+}

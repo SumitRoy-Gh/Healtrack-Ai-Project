@@ -1,0 +1,11 @@
+opencv-python
+Pillow
+torch
+torchvision
+scikit-learn
+numpy
+plotly
+kaleido
+openai
+python-dotenv
+
