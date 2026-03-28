@@ -1,0 +1,35 @@
+# Backend uploads and outputs
+backend/uploads/
+backend/outputs/
+
+# ML outputs and data
+ml/outputs/
+ml/data/
+ml/__pycache__/
+ml/*.pyc
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dev.bat
+
+# Test and temporary files
+api_response.json
+test_output.txt
+outputs/
+nul
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
